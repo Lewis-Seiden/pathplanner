@@ -19,6 +19,7 @@ class MarkerEditor extends StatefulWidget {
   final bool holonomicMode;
   final void Function(RobotPath path) savePath;
   final SharedPreferences prefs;
+  final List<String> commandBindings;
 
   const MarkerEditor(
       {required this.path,
@@ -27,6 +28,7 @@ class MarkerEditor extends StatefulWidget {
       required this.holonomicMode,
       required this.savePath,
       required this.prefs,
+      required this.commandBindings,
       super.key});
 
   @override
@@ -356,7 +358,8 @@ class _MarkerEditorState extends State<MarkerEditor> {
                       widget.path.markers.indexOf(_selectedMarker!) + 1];
                 });
               }
-            : null,
+            : null, 
+            commandBindings: widget.commandBindings,
       ),
     );
   }

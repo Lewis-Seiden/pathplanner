@@ -17,6 +17,7 @@ class MarkerCard extends StatefulWidget {
   final ValueChanged<double?> onPreviewPosChanged;
   final VoidCallback? onPrevMarker;
   final VoidCallback? onNextMarker;
+  final List<String> commandBindings;
 
   const MarkerCard(
       {required this.stackKey,
@@ -30,6 +31,7 @@ class MarkerCard extends StatefulWidget {
       required this.onPreviewPosChanged,
       this.onPrevMarker,
       this.onNextMarker,
+      required this.commandBindings,
       super.key});
 
   @override
@@ -137,12 +139,13 @@ class _MarkerCardState extends State<MarkerCard> {
         child: Column(
           children: [
             for (int i = 0; i < widget.marker!.names.length; i++)
-              _buildNameTextField(
+              _buildCommandDropdownField(
                   onSubmitted: (value) {
+                    value ??= '';
                     if (value.isNotEmpty) {
                       setState(() {
                         _oldMarker = widget.marker!.clone();
-                        widget.marker!.names[i] = value;
+                        widget.marker!.names[i] = value!;
                         widget.onEdited(_oldMarker!);
                       });
                     } else if (widget.marker!.names.length > 1) {
@@ -159,9 +162,9 @@ class _MarkerCardState extends State<MarkerCard> {
                   name: widget.marker!.names[i],
                   label: 'Event ${i + 1}'),
             if (widget.marker!.names.length < 4)
-              _buildNameTextField(
+              _buildCommandDropdownField(
                 onSubmitted: (value) {
-                  if (value.isNotEmpty) {
+                  if (value!.isNotEmpty) {
                     setState(() {
                       _oldMarker = widget.marker!.clone();
                       widget.marker!.names.add(value);
@@ -203,6 +206,44 @@ class _MarkerCardState extends State<MarkerCard> {
         ),
       ),
     );
+  }
+
+  Widget _buildCommandDropdownField(
+      {required ValueChanged<String?> onSubmitted,
+      required String label,
+      required String name}) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    TextEditingController controller = TextEditingController(text: name);
+    controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: controller.text.length));
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: SizedBox(
+          height: 35,
+          child: DropdownButtonFormField<String>(
+            onChanged: onSubmitted,
+            isExpanded: true,
+            style: TextStyle(fontSize: 14, color: colorScheme.onSurface),
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+              labelText: label,
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(4)),
+            ),
+            items: _getDropdownBindings(),
+            value: ''
+          )),
+    );
+  }
+
+  List<DropdownMenuItem<String>> _getDropdownBindings() {
+    List<DropdownMenuItem<String>> items = List.empty(growable: true);
+    for (var binding in widget.commandBindings) {
+      items.add(DropdownMenuItem(value: binding, child: Text(binding)));
+    }
+    items.add(const DropdownMenuItem(value: '', child: Text('None')));
+    return items;
   }
 
   Widget _buildPositionSlider() {

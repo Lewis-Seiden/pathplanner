@@ -44,6 +44,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Directory? _projectDir;
   List<RobotPath> _paths = [];
+  List<String> _commandBindings = [];
   RobotPath? _currentPath;
   Size _robotSize = const Size(0.75, 1.0);
   bool _holonomicMode = false;
@@ -112,6 +113,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         _paths = _loadPaths(_projectDir!);
         _isWpiLib = _isWpiLibProject(_projectDir!);
         _currentPath = _paths[0];
+        _commandBindings = _loadCommandBindings(_projectDir!);
 
         _loadProjectSettingsFromFile(_projectDir!);
 
@@ -503,6 +505,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               focusedSelection: _focusedSelection,
               savePath: (path) => _savePath(path),
               prefs: widget.prefs,
+              commandBindings: _commandBindings,
             ),
           ),
           Align(
@@ -572,6 +575,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
 
     return paths;
+  }
+
+  List<String> _loadCommandBindings(Directory projectDir) {
+    Directory pathsDir = _getPathsDir(projectDir);
+    if (!pathsDir.existsSync()) {
+      pathsDir.createSync(recursive: true);
+    }
+
+    var json = jsonDecode(File(join(pathsDir.path, '_commandBindings.json')).readAsStringSync())['bindings'];
+
+    return json != null ? List.from(json) : List.empty();
   }
 
   Directory _getPathsDir(Directory projectDir) {
@@ -718,6 +732,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         _loadProjectSettingsFromFile(_projectDir!);
         _isWpiLib = _isWpiLibProject(_projectDir!);
         _currentPath = _paths[0];
+        _commandBindings = _loadCommandBindings(_projectDir!);
       });
     }
   }
