@@ -164,10 +164,11 @@ class _MarkerCardState extends State<MarkerCard> {
             if (widget.marker!.names.length < 4)
               _buildCommandDropdownField(
                 onSubmitted: (value) {
-                  if (value!.isNotEmpty) {
+                  value??= '';
+                  if (value.isEmpty) {
                     setState(() {
                       _oldMarker = widget.marker!.clone();
-                      widget.marker!.names.add(value);
+                      widget.marker!.names.add(value!);
                       widget.onEdited(_oldMarker!);
                     });
                   }

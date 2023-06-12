@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -130,15 +131,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         _animController.forward();
       });
 
+      Timer.periodic(const Duration(seconds: 5), (timer) {
+        setState(() {
+          _commandBindings = _loadCommandBindings(_projectDir!);
+        });
+      });
+
       if (!(widget.prefs.getBool('seen2023Warning') ?? false)) {
+        // ignore: use_build_context_synchronously
         showDialog(
             context: this.context,
             barrierDismissible: false,
             builder: (context) {
               return AlertDialog(
                 title: const Text('Non-standard Field Mirroring'),
+                // ignore: prefer_const_constructors
                 content: SizedBox(
                   width: 300,
+                  // ignore: prefer_const_constructors
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: const [
